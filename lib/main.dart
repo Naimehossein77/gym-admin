@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:gym_admin/Views/HomePage/homePage.dart';
+import 'package:get/get.dart';
+import 'package:gym_admin/Utils/routes.dart';
+import 'package:gym_admin/Views/DashbordScreen/dashboard_screen.dart';
+import 'package:gym_admin/Views/DashbordScreen/dashboard_screen_binding.dart';
+import 'package:gym_admin/Views/LoginScreen/login_screen.dart';
+import 'package:gym_admin/Views/LoginScreen/login_screen_binding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,11 +44,20 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(fontFamily: 'roboto'),
             // home: SplashScreen(),
-            // initialRoute: Routes.landingPage,
-            home: HomePage(),
+            initialRoute: Routes.loginScreen,
 
+            // home: HomePage(),
             getPages: [
-           
+              GetPage(
+                name: Routes.loginScreen,
+                page: () => LoginScreen(),
+                binding: LoginScreenBinding(),
+              ),
+              GetPage(
+                name: Routes.dashbordScreen,
+                page: () => DashboardScreen(),
+                binding: DashboardScreenBinding(),
+              ),
             ],
           ),
         );
