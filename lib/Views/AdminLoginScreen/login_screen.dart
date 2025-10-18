@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:gym_admin/Views/LoginScreen/login_Screen_controller.dart';
+import 'package:gym_admin/Views/AdminLoginScreen/login_Screen_controller.dart';
 
-class LoginScreen extends GetView<LoginScreenController> {
-  const LoginScreen({super.key});
+class AdminLoginScreen extends GetView<AdminLoginScreenController> {
+  const AdminLoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +92,10 @@ class LoginScreen extends GetView<LoginScreenController> {
 
                       // 🔘 Continue Button
                       GestureDetector(
+                      
                         onTap: () {
                           controller.adminLogin();
+                          // Get.toNamed(Routes.dashbordScreen);
                         },
                         child: Container(
                           height: 40,
