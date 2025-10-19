@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:gym_admin/Network_managar/api_sarvice.dart';
+import 'package:gym_admin/Utils/routes.dart';
 import 'package:http/http.dart' as http;
 
-// Routes.dart
-class Routes {
-  static const dashbordScreen = "/dashboard";
-}
+// // Routes.dart
+// class Routes {
+//   static const dashbordScreen = "/dashboard";
+// }
 
 // Controller
 class AdminLoginScreenController extends GetxController {
@@ -30,7 +31,7 @@ class AdminLoginScreenController extends GetxController {
 
   void togglePassword() => obscurePassword.value = !obscurePassword.value;
 
-  Future<void> adminLogin() async {
+  Future<void> adminUserLogin() async {
     if (!formKey.currentState!.validate()) {
       Get.snackbar(
         "Validation Error",
@@ -41,11 +42,14 @@ class AdminLoginScreenController extends GetxController {
       return;
     }
     try {
+      
       EasyLoading.show(status: "Logging in...");
       final response = await ApiService.adminLogin(
         username: userNameController.text,
         password: passwordController.text,
       );
+      log("statuscode:${response.statusCode}");
+      log("body:${response.body}");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['access_token'];
@@ -63,7 +67,7 @@ class AdminLoginScreenController extends GetxController {
           );
           EasyLoading.dismiss();
         }
-        Get.offAllNamed(Routes.dashbordScreen);
+       Get.offAllNamed(Routes.dashbordScreen);
       }
     } catch (e) {
       EasyLoading.dismiss();

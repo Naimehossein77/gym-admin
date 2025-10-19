@@ -94,7 +94,7 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
                       GestureDetector(
                       
                         onTap: () {
-                          controller.adminLogin();
+                          controller.adminUserLogin();
                           // Get.toNamed(Routes.dashbordScreen);
                         },
                         child: Container(
