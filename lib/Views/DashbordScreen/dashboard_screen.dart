@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -86,24 +87,117 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                SizedBox(
-                  width: 80.w,
-                  child: customTextField(
-                    context,
-                    label: "Phone Number",
-                    hintText: "number",
-                    controller: controller.textController,
+                // Text("Phone number"),
+                GestureDetector(
+                  onTap: () {
+                    showCountryPicker(
+                      context: context,
+                      showPhoneCode: true,
+                      onSelect: (Country country) {
+                        controller.selectedCountryCode =
+                            '+${country.phoneCode}';
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 30),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 5.w,
+                            vertical: 10.h,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                controller.selectedCountryCode,
+                                style: TextStyle(
+                                  fontSize: 3.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              // SizedBox(width: 20.w),
+                              Icon(Icons.arrow_drop_down),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      SizedBox(
+                        width: 60.w,
+                        child: customTextField(
+                          context,
+                          label: "",
+                          hintText: "phone number",
+                          controller: controller.textController,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 5.h),
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w400,
+                SizedBox(height: 10.h),
+                Container(
+                  width: 80.w,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 7.h,
+                    // horizontal: 10.w,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Obx(
+                    () => DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: controller.selectedPlan.value,
+                        isExpanded: true,
+                        items:
+                            controller.plans
+                                .map(
+                                  (plan) => DropdownMenuItem(
+                                    value: plan,
+                                    child: Text(plan),
+                                  ),
+                                )
+                                .toList(),
+                        onChanged: (value) {
+                          controller.selectedPlan.value = value!;
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 10.h),
+                GestureDetector(
+                  onTap: () {
+                  
+                    // Get.toNamed(Routes.dashbordScreen);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 50.w),
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.blueAccent,
+                            Color.fromARGB(255, 127, 191, 228),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Text(
+                        "Add member",
+                        style: TextStyle(fontSize: 3.5.sp, color: Colors.black),
+                      ),
                     ),
                   ),
                 ),

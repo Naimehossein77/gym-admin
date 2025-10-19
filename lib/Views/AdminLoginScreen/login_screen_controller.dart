@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:gym_admin/Network_managar/api_sarvice.dart';
 import 'package:gym_admin/Utils/routes.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 // // Routes.dart
 // class Routes {
@@ -42,7 +43,6 @@ class AdminLoginScreenController extends GetxController {
       return;
     }
     try {
-      
       EasyLoading.show(status: "Logging in...");
       final response = await ApiService.adminLogin(
         username: userNameController.text,
@@ -54,7 +54,10 @@ class AdminLoginScreenController extends GetxController {
         final data = jsonDecode(response.body);
         final token = data['access_token'];
         final role = data["role"];
-
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', token);
+        await prefs.setString('role', role);
+        log('✅ Token saved successfully!');
         if (token != null) {
           log("$token");
           log("$role");
@@ -67,7 +70,7 @@ class AdminLoginScreenController extends GetxController {
           );
           EasyLoading.dismiss();
         }
-       Get.offAllNamed(Routes.dashbordScreen);
+        Get.offAllNamed(Routes.dashbordScreen);
       }
     } catch (e) {
       EasyLoading.dismiss();
