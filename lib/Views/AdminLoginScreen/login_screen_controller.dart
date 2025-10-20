@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:gym_admin/Network_managar/api_sarvice.dart';
+import 'package:gym_admin/Network_managar/user_preference.dart';
 import 'package:gym_admin/Utils/routes.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,6 +59,12 @@ class AdminLoginScreenController extends GetxController {
         await prefs.setString('access_token', token);
         await prefs.setString('role', role);
         log('✅ Token saved successfully!');
+        if (token != null && token.isNotEmpty) {
+          // ✅ Save token using UserPreference
+          await UserPreference.saveToken(token);
+          await UserPreference.saveUserName(userNameController.text);
+          await UserPreference.saveIsLoggedIn(true);
+        }
         if (token != null) {
           log("$token");
           log("$role");

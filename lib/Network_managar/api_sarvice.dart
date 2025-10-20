@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get_connect/http/src/response/response.dart';
+import 'package:gym_admin/Model/member_model.dart';
 import 'package:gym_admin/Network_managar/api_constants.dart';
 import 'package:gym_admin/Network_managar/api_provider.dart';
 import 'package:gym_admin/Network_managar/user_preference.dart';
@@ -18,9 +19,30 @@ class ApiService {
   }
 
   /// 🔹 Admin Login API Call
-   static const String baseUrl = "http://192.168.10.29:9000/api/";
+  static const String baseUrl = "http://192.168.10.29:9000/api/";
 
-  /// Admin login (x-www-form-urlencoded)
+  static Future<List<MemberModel>> getMembers() async {
+    try {
+      final url = Uri.parse(
+        '${ApiConstants.baseUrl}${ApiConstants.getMembers}',
+      );
+      final headers = await _getAuthHeaders();
+
+      final response = await http.get(url, headers: headers);
+      log('📥 Members response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => MemberModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load members: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('❌ Member fetch error: $e');
+      throw Exception('Member fetch failed: $e');
+    }
+  }
+
   static Future<http.Response> adminLogin({
     required String username,
     required String password,
@@ -33,10 +55,7 @@ class ApiService {
         "Accept": "application/json",
       };
 
-      final body = {
-        "username": username.trim(),
-        "password": password.trim(),
-      };
+      final body = {"username": username.trim(), "password": password.trim()};
 
       final response = await http.post(url, headers: headers, body: body);
       if (response.statusCode != 200) {
@@ -49,10 +68,6 @@ class ApiService {
     }
   }
 
-
-
-
-  
   static Future<http.Response> memberAdd({
     required String name,
     required String email,
@@ -60,7 +75,7 @@ class ApiService {
     required String membershipType,
     required String token, // যদি Authorization লাগে
   }) async {
-    final url = Uri.parse('$baseUrl/${ApiConstants.addMember}');
+    final url = Uri.parse('${baseUrl}members');
 
     // Body
     final body = jsonEncode({
@@ -80,5 +95,29 @@ class ApiService {
     final response = await http.post(url, body: body, headers: headers);
 
     return response;
+  }
+
+  static Future<http.Response> updateMemberCredentials({
+    required int memberId,
+    required String username,
+    required String password,
+    required String token,
+  }) async {
+    final url = Uri.parse(
+      'http://192.168.10.29:9000/api/members/$memberId/credentials',
+    );
+
+    final body = jsonEncode({"username": username, "password": password});
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    return await http.post(
+      url,
+      body: body,
+      headers: headers,
+    ); // or PUT if API requires
   }
 }

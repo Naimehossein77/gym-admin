@@ -4,34 +4,178 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:gym_admin/Views/DashbordScreen/dashboard_screen_controller.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends GetView<DashboardScreenController> {
   DashboardScreen({super.key});
   DashboardScreenController controller = Get.put(DashboardScreenController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox(height: 100.h),
-          Align(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      showDuplicateLoginDialog();
-                    },
-                    child: Text("Add Member"),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: 100.h),
+                Align(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                showDuplicateLoginDialog();
+                              },
+                              child: Text("Add Member"),
+                            ),
+                          ],
+                        ),
+                        Obx(() {
+                          if (controller.isLoading.value) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (controller.members.isEmpty) {
+                            return const Center(
+                              child: Text('No members found.'),
+                            );
+                          }
+
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            scrollDirection: Axis.vertical,
+                            child: Card(
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: DataTable(
+                                headingRowColor: MaterialStateProperty.all(
+                                  Colors.blueAccent.withOpacity(0.1),
+                                ),
+                                dataRowColor: MaterialStateProperty.resolveWith<
+                                  Color?
+                                >((Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return Colors.blueAccent.withOpacity(0.2);
+                                  }
+                                  return null;
+                                }),
+                                columnSpacing: 20,
+                                horizontalMargin: 16,
+                                columns: const [
+                                  DataColumn(
+                                    label: Text(
+                                      'ID',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Name',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Email',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Phone',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Type',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'Status',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows:
+                                    controller.members.map((member) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(Text(member.id.toString())),
+                                          DataCell(Text(member.name)),
+                                          DataCell(Text(member.email)),
+                                          DataCell(Text(member.phone)),
+                                          DataCell(Text(member.membershipType)),
+                                          DataCell(
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    member.status
+                                                                .toLowerCase() ==
+                                                            'active'
+                                                        ? Colors.green
+                                                            .withOpacity(0.2)
+                                                        : Colors.red
+                                                            .withOpacity(0.2),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                member.status,
+                                                style: TextStyle(
+                                                  color:
+                                                      member.status
+                                                                  .toLowerCase() ==
+                                                              'active'
+                                                          ? Colors.green
+                                                          : Colors.red,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -72,7 +216,7 @@ class DashboardScreen extends StatelessWidget {
                     context,
                     label: "Name",
                     hintText: "name",
-                    controller: controller.textController,
+                    controller: controller.nameController,
                   ),
                 ),
                 SizedBox(height: 10.h),
@@ -83,7 +227,7 @@ class DashboardScreen extends StatelessWidget {
                     context,
                     label: "Email",
                     hintText: "email",
-                    controller: controller.textController,
+                    controller: controller.emailController,
                   ),
                 ),
                 SizedBox(height: 10.h),
@@ -136,7 +280,7 @@ class DashboardScreen extends StatelessWidget {
                           context,
                           label: "",
                           hintText: "phone number",
-                          controller: controller.textController,
+                          controller: controller.phoneController,
                         ),
                       ),
                     ],
@@ -177,12 +321,18 @@ class DashboardScreen extends StatelessWidget {
 
                 SizedBox(height: 10.h),
                 GestureDetector(
-                  onTap: () {
-                  
-                    // Get.toNamed(Routes.dashbordScreen);
+                  onTap: () async {
+                    await controller.addMember();
+                    if (controller.responseMessage.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(controller.responseMessage.value),
+                        ),
+                      );
+                    }
                   },
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50.w),
+                    padding: EdgeInsets.symmetric(horizontal: 110.w),
                     child: Container(
                       height: 40.h,
                       decoration: BoxDecoration(
@@ -194,9 +344,14 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
-                      child: Text(
-                        "Add member",
-                        style: TextStyle(fontSize: 3.5.sp, color: Colors.black),
+                      child: Center(
+                        child: Text(
+                          "Add member",
+                          style: TextStyle(
+                            fontSize: 3.5.sp,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ),
