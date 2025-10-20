@@ -47,125 +47,233 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                             );
                           }
 
-                          return SingleChildScrollView(
-                            padding: const EdgeInsets.all(16),
-                            scrollDirection: Axis.vertical,
-                            child: Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: DataTable(
-                                headingRowColor: MaterialStateProperty.all(
-                                  Colors.blueAccent.withOpacity(0.1),
-                                ),
-                                dataRowColor: MaterialStateProperty.resolveWith<
-                                  Color?
-                                >((Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.selected)) {
-                                    return Colors.blueAccent.withOpacity(0.2);
-                                  }
-                                  return null;
-                                }),
-                                columnSpacing: 20,
-                                horizontalMargin: 16,
-                                columns: const [
-                                  DataColumn(
-                                    label: Text(
-                                      'ID',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                          return Column(
+                            children: [
+                              SingleChildScrollView(
+                                padding: const EdgeInsets.all(16),
+                                scrollDirection: Axis.vertical,
+                                child: Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Name',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  child: DataTable(
+                                    headingRowColor: MaterialStateProperty.all(
+                                      Colors.blueAccent.withOpacity(0.1),
                                     ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                    columnSpacing: 20,
+                                    horizontalMargin: 16,
+                                    columns: const [
+                                      DataColumn(
+                                        label: Text(
+                                          'ID',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Phone',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      DataColumn(
+                                        label: Text(
+                                          'Name',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Type',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      DataColumn(
+                                        label: Text(
+                                          'Email',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Status',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      DataColumn(
+                                        label: Text(
+                                          'Phone',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                                rows:
-                                    controller.members.map((member) {
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(Text(member.id.toString())),
-                                          DataCell(Text(member.name)),
-                                          DataCell(Text(member.email)),
-                                          DataCell(Text(member.phone)),
-                                          DataCell(Text(member.membershipType)),
-                                          DataCell(
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    member.status
-                                                                .toLowerCase() ==
-                                                            'active'
-                                                        ? Colors.green
-                                                            .withOpacity(0.2)
-                                                        : Colors.red
-                                                            .withOpacity(0.2),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
+                                      DataColumn(
+                                        label: Text(
+                                          'Type',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Status',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Delete Member',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Add Credential',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'token genarate',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows:
+                                        controller.paginatedMembers.map((
+                                          member,
+                                        ) {
+                                          return DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(member.id.toString()),
                                               ),
-                                              child: Text(
-                                                member.status,
-                                                style: TextStyle(
-                                                  color:
-                                                      member.status
-                                                                  .toLowerCase() ==
-                                                              'active'
-                                                          ? Colors.green
-                                                          : Colors.red,
-                                                  fontWeight: FontWeight.w600,
+                                              DataCell(Text(member.name)),
+                                              DataCell(Text(member.email)),
+                                              DataCell(Text(member.phone)),
+                                              DataCell(
+                                                Text(member.membershipType),
+                                              ),
+                                              DataCell(
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        member.status
+                                                                    .toLowerCase() ==
+                                                                'active'
+                                                            ? Colors.green
+                                                                .withOpacity(
+                                                                  0.2,
+                                                                )
+                                                            : Colors.red
+                                                                .withOpacity(
+                                                                  0.2,
+                                                                ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    member.status,
+                                                    style: TextStyle(
+                                                      color:
+                                                          member.status
+                                                                      .toLowerCase() ==
+                                                                  'active'
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
+                                              DataCell(
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                  tooltip: 'Delete Member',
+                                                  onPressed: () {
+                                                    Get.defaultDialog(
+                                                      title: "Confirm Delete",
+                                                      middleText:
+                                                          "Are you sure you want to delete ${member.name}?",
+                                                      textCancel: "Cancel",
+                                                      textConfirm: "Delete",
+                                                      confirmTextColor:
+                                                          Colors.white,
+                                                      onConfirm: () {
+                                                        Get.back();
+                                                        controller.deleteMember(
+                                                          member.id,
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              DataCell(
+                                                IconButton(
+                                                  icon: Icon(Icons.add),
+                                                  tooltip: 'add credentisl',
+                                                  onPressed: () {
+                                                    credendentials();
+                                                  },
+                                                ),
+                                              ),
+                                              DataCell(
+                                                InkWell(
+                                                  onTap: () {},
+                                                  child: Container(
+                                                    child: Text("Generate"),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }).toList(),
+                                  ),
+                                ),
                               ),
-                            ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_back),
+                                      onPressed:
+                                          controller.currentPage.value > 0
+                                              ? controller.previousPage
+                                              : null,
+                                    ),
+                                    Text(
+                                      'Page ${controller.currentPage.value + 1} of ${((controller.members.length - 1) / controller.pageSize).ceil()}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_forward),
+                                      onPressed:
+                                          ((controller.currentPage.value + 1) *
+                                                      controller.pageSize <
+                                                  controller.members.length)
+                                              ? controller.nextPage
+                                              : null,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           );
                         }),
                       ],
@@ -189,8 +297,8 @@ class DashboardScreen extends GetView<DashboardScreenController> {
         return Align(
           alignment: const Alignment(0, -0.5),
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14.r),
@@ -434,6 +542,117 @@ class DashboardScreen extends GetView<DashboardScreenController> {
           ),
         ),
       ],
+    );
+  }
+
+  void credendentials() {
+    Get.generalDialog(
+      barrierDismissible: true,
+      barrierLabel: "Duplicate Login",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Align(
+          alignment: const Alignment(0, -0.5),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10.h),
+                Text(
+                  "ADD CREDENTIAL",
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    fontSize: 6.sp,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xff000000),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(
+                  width: 80.w,
+                  child: customTextField(
+                    context,
+                    label: "userName",
+                    hintText: "userName",
+                    controller: controller.userNameController,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+
+                SizedBox(
+                  width: 80.w,
+                  child: customTextField(
+                    context,
+                    label: "Password",
+                    hintText: "password",
+                    controller: controller.passwordController,
+                  ),
+                ),
+
+                SizedBox(height: 10.h),
+                GestureDetector(
+                  onTap: () async {
+                    final selectedId = controller.selectedMember.value?.id;
+                    if (selectedId != null) {
+                      controller.setPassword(
+                        memberId: selectedId,
+                        username: '@limon',
+                        password: 'limon123',
+                      );
+                    } else {
+                      Get.snackbar(
+                        "Error",
+                        "No member selected",
+                        backgroundColor: Colors.red,
+                      );
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 110.w),
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.blueAccent,
+                            Color.fromARGB(255, 127, 191, 228),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "set password",
+                          style: TextStyle(
+                            fontSize: 3.5.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+              ],
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final offsetAnimation = Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
     );
   }
 }

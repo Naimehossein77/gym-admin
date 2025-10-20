@@ -97,27 +97,76 @@ class ApiService {
     return response;
   }
 
-  static Future<http.Response> updateMemberCredentials({
-    required int memberId,
-    required String username,
-    required String password,
-    required String token,
-  }) async {
-    final url = Uri.parse(
-      'http://192.168.10.29:9000/api/members/$memberId/credentials',
-    );
 
-    final body = jsonEncode({"username": username, "password": password});
+
+
+
+
+
+  static Future<http.Response> setMemberCredentials({
+  required int memberId,
+  required String username,
+  required String password,
+  required String token,
+}) async {
+  final url = Uri.parse('${ApiConstants.setPassword}/members/$memberId/credentials');
+
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  };
+
+  final body = jsonEncode({
+    'username': username,
+    'password': password,
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: body);
+    log('🔐 Set credentials response: ${response.statusCode}');
+    log('📦 Body: ${response.body}');
+    return response;
+  } catch (e) {
+    log('❌ Error setting credentials: $e');
+    throw Exception('Failed to set member credentials');
+  }
+}
+
+ 
+
+
+
+ 
+
+  static Future<http.Response> deleteMember({
+    required int targetMemberId,
+    required String token,
+    required int memberIdInBody,
+  }) async {
+    final url = Uri.parse('${ApiConstants.deleteNember}$targetMemberId');
 
     final headers = {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
       'Authorization': 'Bearer $token',
     };
 
-    return await http.post(
-      url,
-      body: body,
-      headers: headers,
-    ); // or PUT if API requires
+    final body = jsonEncode({
+      'token': token,
+      'member_id': memberIdInBody,
+    });
+
+    try {
+      final response = await http.delete(url, headers: headers, body: body);
+      log('🗑️ Delete response: ${response.statusCode}');
+      log('📦 Response body: ${response.body}');
+      return response;
+    } catch (e) {
+      log('❌ Delete error: $e');
+      throw Exception('Failed to delete member');
+    }
   }
 }
+
+
+
+
