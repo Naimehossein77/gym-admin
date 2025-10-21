@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class DashboardScreenController extends GetxController {
 
   var members = <MemberModel>[].obs;
   var selectedMember = Rxn<MemberModel>();
+
   var currentPage = 0.obs;
   final int pageSize = 20;
 
@@ -109,54 +111,67 @@ class DashboardScreenController extends GetxController {
 
   var isUpdatingCredentials = false.obs;
 
-  Future<void> setPassword({
-    required int memberId,
-    required String username,
-    required String password,
-  }) async {
-    try {
-      isUpdatingCredentials.value = true;
 
-      final token = await UserPreference.getToken() ?? '';
-      log('🔑 Token: $token');
+ Future<void> setPassword({
+  required String username,
+  required String password,
+}) async {
+  try {
+    isUpdatingCredentials.value = true;
 
-      final response = await ApiService.setMemberCredentials(
-        memberId: memberId,
-        username: userNameController.text,
-        password: passwordController.text,
-        token: token,
-      );
-
-      if (response.statusCode == 200) {
-        log('🔐 Response status: ${response.statusCode}');
-        log('📦 Response body: ${response.body}');
-        Get.snackbar(
-          "✅ Success",
-          "Credentials updated successfully",
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.toNamed(Routes.dashbordScreen);
-      } else {
-        Get.snackbar(
-          "❌ Error",
-          "Failed to update credentials",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
-      log('❌ Exception: $e');
+    final memberId = selectedMember.value?.id; // ✅ Member select করা দরকার
+    if (memberId == null) {
       Get.snackbar(
         "❌ Error",
-        "Something went wrong",
+        "No member selected",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-    } finally {
-      isUpdatingCredentials.value = false;
+      return;
     }
+
+    final token = await UserPreference.getToken() ?? '';
+    log('🔑 Token: $token');
+
+    final response = await ApiService.setMemberCredentials(
+      memberId: memberId,
+      username: userNameController.text.trim(),
+      password: passwordController.text.trim(),
+      token: token,
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['success'] == true) {
+      log('📦 Response body: ${response.body}');
+      Get.snackbar(
+        "✅ Success",
+        data['message'] ?? "Credentials updated successfully",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      Get.offAllNamed(Routes.dashbordScreen);
+    } else {
+      Get.snackbar(
+        "❌ Error",
+        data['message'] ?? "Failed to update credentials",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  } catch (e) {
+    log('❌ Exception: $e');
+    Get.snackbar(
+      "❌ Error",
+      "Something went wrong",
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isUpdatingCredentials.value = false;
   }
+}
+
 
   Future<void> deleteMember(int memberId) async {
     final token = await UserPreference.getToken() ?? '';

@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:gym_admin/Views/DashbordScreen/dashboard_screen_controller.dart';
 
+import '../../Model/member_model.dart';
+
 class DashboardScreen extends GetView<DashboardScreenController> {
   DashboardScreen({super.key});
   DashboardScreenController controller = Get.put(DashboardScreenController());
@@ -223,6 +225,18 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                                   icon: Icon(Icons.add),
                                                   tooltip: 'add credentisl',
                                                   onPressed: () {
+                                                    controller
+                                                        .selectedMember
+                                                        .value = MemberModel(
+                                                      id: 15,
+                                                      name: "Limon",
+                                                      email: "limon@mail.com",
+                                                      phone: "",
+                                                      membershipType: "",
+                                                      status: "active",
+                                                      createdAt: DateTime.now(),
+                                                      updatedAt: DateTime.now(),
+                                                    );
                                                     credendentials();
                                                   },
                                                 ),
@@ -599,20 +613,10 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                 SizedBox(height: 10.h),
                 GestureDetector(
                   onTap: () async {
-                    final selectedId = controller.selectedMember.value?.id;
-                    if (selectedId != null) {
-                      controller.setPassword(
-                        memberId: selectedId,
-                        username: '@limon',
-                        password: 'limon123',
-                      );
-                    } else {
-                      Get.snackbar(
-                        "Error",
-                        "No member selected",
-                        backgroundColor: Colors.red,
-                      );
-                    }
+                    controller.setPassword(
+                      username: "@limon",
+                      password: "limon123",
+                    );
                   },
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 110.w),

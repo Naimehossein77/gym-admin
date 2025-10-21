@@ -102,14 +102,13 @@ class ApiService {
 
 
 
-
-  static Future<http.Response> setMemberCredentials({
+static Future<http.Response> setMemberCredentials({
   required int memberId,
   required String username,
   required String password,
   required String token,
 }) async {
-  final url = Uri.parse('${ApiConstants.setPassword}/members/$memberId/credentials');
+   final url = Uri.parse('${ApiConstants.setPassword}$memberId/credentials'); // Example: /api/member/set-password/1
 
   final headers = {
     'Content-Type': 'application/json',
@@ -123,15 +122,16 @@ class ApiService {
 
   try {
     final response = await http.post(url, headers: headers, body: body);
+
     log('🔐 Set credentials response: ${response.statusCode}');
     log('📦 Body: ${response.body}');
+
     return response;
   } catch (e) {
     log('❌ Error setting credentials: $e');
     throw Exception('Failed to set member credentials');
   }
 }
-
  
 
 
