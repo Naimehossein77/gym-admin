@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:gym_admin/Model/member_model.dart';
 import 'package:gym_admin/Network_managar/api_sarvice.dart';
@@ -17,6 +17,7 @@ class DashboardScreenController extends GetxController {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
+ final expearDaysController=TextEditingController();
   RxString membershipType = 'Premium'.obs;
   TextEditingController countryController = TextEditingController();
   var selectedPlan = 'Basic'.obs;
@@ -111,90 +112,131 @@ class DashboardScreenController extends GetxController {
 
   var isUpdatingCredentials = false.obs;
 
+  Future<void> setPassword({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      isUpdatingCredentials.value = true;
 
- Future<void> setPassword({
-  required String username,
-  required String password,
-}) async {
-  try {
-    isUpdatingCredentials.value = true;
+      final memberId = selectedMember.value?.id; // ✅ Member select করা দরকার
+      if (memberId == null) {
+        Get.snackbar(
+          "❌ Error",
+          "No member selected",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
 
-    final memberId = selectedMember.value?.id; // ✅ Member select করা দরকার
-    if (memberId == null) {
+      final token = await UserPreference.getToken() ?? '';
+      log('🔑 Token: $token');
+
+      final response = await ApiService.setMemberCredentials(
+        memberId: memberId,
+        username: userNameController.text.trim(),
+        password: passwordController.text.trim(),
+        token: token,
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        log('📦 Response body: ${response.body}');
+        Get.snackbar(
+          "✅ Success",
+          data['message'] ?? "Credentials updated successfully",
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.offAllNamed(Routes.dashbordScreen);
+      } else {
+        Get.snackbar(
+          "❌ Error",
+          data['message'] ?? "Failed to update credentials",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      log('❌ Exception: $e');
       Get.snackbar(
         "❌ Error",
-        "No member selected",
+        "Something went wrong",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      return;
-    }
-
-    final token = await UserPreference.getToken() ?? '';
-    log('🔑 Token: $token');
-
-    final response = await ApiService.setMemberCredentials(
-      memberId: memberId,
-      username: userNameController.text.trim(),
-      password: passwordController.text.trim(),
-      token: token,
-    );
-
-    final data = jsonDecode(response.body);
-
-    if (response.statusCode == 200 && data['success'] == true) {
-      log('📦 Response body: ${response.body}');
-      Get.snackbar(
-        "✅ Success",
-        data['message'] ?? "Credentials updated successfully",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-      Get.offAllNamed(Routes.dashbordScreen);
-    } else {
-      Get.snackbar(
-        "❌ Error",
-        data['message'] ?? "Failed to update credentials",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    }
-  } catch (e) {
-    log('❌ Exception: $e');
-    Get.snackbar(
-      "❌ Error",
-      "Something went wrong",
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-  } finally {
-    isUpdatingCredentials.value = false;
-  }
-}
-
-
-  Future<void> deleteMember(int memberId) async {
-    final token = await UserPreference.getToken() ?? '';
-
-    final response = await ApiService.deleteMember(
-      targetMemberId: memberId,
-      token: token,
-      memberIdInBody: memberId,
-    );
-
-    if (response.statusCode == 200) {
-      members.removeWhere((m) => m.id == memberId);
-      Get.snackbar(
-        "Deleted",
-        "Member removed successfully",
-        backgroundColor: Colors.green,
-      );
-    } else {
-      Get.snackbar(
-        "Error",
-        "Failed to delete member",
-        backgroundColor: Colors.red,
-      );
+    } finally {
+      isUpdatingCredentials.value = false;
     }
   }
+
+
+
+
+
+
+
+
+
+ 
+  var tokenResponse = {}.obs;
+
+
+  Future<void> generateToken({
+    required int memberId,
+    required int expiresInDays,
+
+  }) async {
+    try {
+      isLoading(true);
+      EasyLoading.show(status: "Generating token...");
+
+      final result = await ApiService.generateToken(
+        memberId: memberId,
+        expiresInDays: expiresInDays,
+        
+      );
+
+      if (result != null) {
+        tokenResponse.value = result;
+        Get.snackbar("✅ Success", "Token generated successfully!");
+      } else {
+        Get.snackbar("❌ Failed", "Could not generate token.");
+      }
+    } catch (e) {
+      Get.snackbar("⚠️ Error", e.toString());
+    } finally {
+      isLoading(false);
+      if (EasyLoading.isShow) EasyLoading.dismiss();
+    }
+  }
+
+
+
+
+  // Future<void> deleteMember(int memberId) async {
+  //   final token = await UserPreference.getToken() ?? '';
+
+  //   final response = await ApiService.deleteMember(
+  //     token: token,
+  //     memberIdInBody: memberId,
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     members.removeWhere((m) => m.id == memberId);
+  //     Get.snackbar(
+  //       "Deleted",
+  //       "Member removed successfully",
+  //       backgroundColor: Colors.green,
+  //     );
+  //   } else {
+  //     Get.snackbar(
+  //       "Error",
+  //       "Failed to delete member",
+  //       backgroundColor: Colors.red,
+  //     );
+  //   }
+  // }
 }

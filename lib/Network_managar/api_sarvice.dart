@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:gym_admin/Model/member_model.dart';
 import 'package:gym_admin/Network_managar/api_constants.dart';
-import 'package:gym_admin/Network_managar/api_provider.dart';
 import 'package:gym_admin/Network_managar/user_preference.dart';
 
 import 'package:http/http.dart' as http;
@@ -97,46 +95,71 @@ class ApiService {
     return response;
   }
 
+  static Future<http.Response> setMemberCredentials({
+    required int memberId,
+    required String username,
+    required String password,
+    required String token,
+  }) async {
+    final url = Uri.parse(
+      '${ApiConstants.setPassword}$memberId/credentials',
+    ); // Example: /api/member/set-password/1
 
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
 
+    final body = jsonEncode({'username': username, 'password': password});
 
+    try {
+      final response = await http.post(url, headers: headers, body: body);
 
+      log('🔐 Set credentials response: ${response.statusCode}');
+      log('📦 Body: ${response.body}');
 
-static Future<http.Response> setMemberCredentials({
-  required int memberId,
-  required String username,
-  required String password,
-  required String token,
-}) async {
-   final url = Uri.parse('${ApiConstants.setPassword}$memberId/credentials'); // Example: /api/member/set-password/1
-
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
-
-  final body = jsonEncode({
-    'username': username,
-    'password': password,
-  });
-
-  try {
-    final response = await http.post(url, headers: headers, body: body);
-
-    log('🔐 Set credentials response: ${response.statusCode}');
-    log('📦 Body: ${response.body}');
-
-    return response;
-  } catch (e) {
-    log('❌ Error setting credentials: $e');
-    throw Exception('Failed to set member credentials');
+      return response;
+    } catch (e) {
+      log('❌ Error setting credentials: $e');
+      throw Exception('Failed to set member credentials');
+    }
   }
-}
- 
 
+  static Future<Map<String, dynamic>?> generateToken({
+    required int memberId,
+    required int expiresInDays,
+  }) async {
+    final token = (await UserPreference.getToken())?.trim();
+    final url = Uri.parse('${ApiConstants.tokenGenarate}');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': token, // উদাহরণ: Bearer token
+    };
 
+    final body = jsonEncode({
+      'member_id': memberId,
+      'expires_in_days': expiresInDays,
+    });
 
- 
+    try {
+      final response = await http.post(
+        url,
+        headers: await _getAuthHeaders(),
+        body: body,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else {
+        print("❌ Token generation failed: ${response.statusCode}");
+        print("Response: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("⚠️ Exception while generating token: $e");
+      return null;
+    }
+  }
 
   static Future<http.Response> deleteMember({
     required int targetMemberId,
@@ -150,10 +173,7 @@ static Future<http.Response> setMemberCredentials({
       'Authorization': 'Bearer $token',
     };
 
-    final body = jsonEncode({
-      'token': token,
-      'member_id': memberIdInBody,
-    });
+    final body = jsonEncode({'token': token, 'member_id': memberIdInBody});
 
     try {
       final response = await http.delete(url, headers: headers, body: body);
@@ -166,7 +186,3 @@ static Future<http.Response> setMemberCredentials({
     }
   }
 }
-
-
-
-

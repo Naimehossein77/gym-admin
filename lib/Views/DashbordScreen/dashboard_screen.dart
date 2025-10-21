@@ -52,8 +52,10 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                           return Column(
                             children: [
                               SingleChildScrollView(
+                                // scrollDirection: Axis.vertical,
+                                    scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.all(16),
-                                scrollDirection: Axis.vertical,
+                            
                                 child: Card(
                                   elevation: 4,
                                   shape: RoundedRectangleBorder(
@@ -138,6 +140,22 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                           ),
                                         ),
                                       ),
+                                      DataColumn(
+                                        label: Text(
+                                          'User name',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'View Token',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                     rows:
                                         controller.paginatedMembers.map((
@@ -212,9 +230,9 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                                           Colors.white,
                                                       onConfirm: () {
                                                         Get.back();
-                                                        controller.deleteMember(
-                                                          member.id,
-                                                        );
+                                                        // controller.deleteMember(
+                                                        //   member.id,
+                                                        // );
                                                       },
                                                     );
                                                   },
@@ -228,12 +246,13 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                                     controller
                                                         .selectedMember
                                                         .value = MemberModel(
-                                                      id: 15,
-                                                      name: "Limon",
-                                                      email: "limon@mail.com",
-                                                      phone: "",
-                                                      membershipType: "",
-                                                      status: "active",
+                                                      id: member.id,
+                                                      name: member.name,
+                                                      email: member.email,
+                                                      phone: member.phone,
+                                                      membershipType:
+                                                          member.membershipType,
+                                                      status: member.status,
                                                       createdAt: DateTime.now(),
                                                       updatedAt: DateTime.now(),
                                                     );
@@ -243,9 +262,37 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                               ),
                                               DataCell(
                                                 InkWell(
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    tokenGenarate();
+                                                  },
                                                   child: Container(
-                                                    child: Text("Generate"),
+                                                    height: 25.h,
+                                                    width: 70.h,
+
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            5.sp,
+                                                          ),
+                                                      border: Border.all(
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text("Generate"),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              DataCell(
+                                                Container(
+                                                  child: Text("userName"),
+                                                ),
+                                              ),
+                                              DataCell(
+                                                Container(
+                                                  child: Text(
+                                                    "toksdfjsfusdfgjsfddujfgdsjfgjsdfgfen",
                                                   ),
                                                 ),
                                               ),
@@ -634,6 +681,93 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                       child: Center(
                         child: Text(
                           "set password",
+                          style: TextStyle(
+                            fontSize: 3.5.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.h),
+              ],
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final offsetAnimation = Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    );
+  }
+
+  void tokenGenarate() {
+    Get.generalDialog(
+      barrierDismissible: true,
+      barrierLabel: "Duplicate Login",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Align(
+          alignment: const Alignment(0, -0.5),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10.h),
+                Text(
+                  "token genarate",
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    fontSize: 6.sp,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xff000000),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                SizedBox(
+                  width: 80.w,
+                  child: customTextField(
+                    context,
+                    label: "Expear days",
+                    hintText: "moth",
+                    controller: controller.expearDaysController,
+                  ),
+                ),
+
+                SizedBox(height: 10.h),
+                GestureDetector(
+                  onTap: () async {
+                    controller.generateToken(memberId: 25, expiresInDays: 0);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 110.w),
+                    child: Container(
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.blueAccent,
+                            Color.fromARGB(255, 127, 191, 228),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "genarate",
                           style: TextStyle(
                             fontSize: 3.5.sp,
                             color: Colors.black,
