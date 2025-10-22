@@ -17,7 +17,7 @@ class DashboardScreenController extends GetxController {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
- final expearDaysController=TextEditingController();
+  final expearDaysController = TextEditingController();
   RxString membershipType = 'Premium'.obs;
   TextEditingController countryController = TextEditingController();
   var selectedPlan = 'Basic'.obs;
@@ -94,10 +94,10 @@ class DashboardScreenController extends GetxController {
       );
       log("body:${response.body}");
       log("satuscode:${response.statusCode}");
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         responseMessage.value = 'Member added successfully!';
         print(response.body);
-        Get.toNamed(Routes.dashbordScreen);
+        Get.back();
       } else {
         responseMessage.value = 'Failed to add member';
         print(response.body);
@@ -172,22 +172,11 @@ class DashboardScreenController extends GetxController {
     }
   }
 
-
-
-
-
-
-
-
-
- 
   var tokenResponse = {}.obs;
-
 
   Future<void> generateToken({
     required int memberId,
     required int expiresInDays,
-
   }) async {
     try {
       isLoading(true);
@@ -196,7 +185,6 @@ class DashboardScreenController extends GetxController {
       final result = await ApiService.generateToken(
         memberId: memberId,
         expiresInDays: expiresInDays,
-        
       );
 
       if (result != null) {
@@ -213,30 +201,24 @@ class DashboardScreenController extends GetxController {
     }
   }
 
-
-
-
-  // Future<void> deleteMember(int memberId) async {
-  //   final token = await UserPreference.getToken() ?? '';
-
-  //   final response = await ApiService.deleteMember(
-  //     token: token,
-  //     memberIdInBody: memberId,
-  //   );
-
-  //   if (response.statusCode == 200) {
-  //     members.removeWhere((m) => m.id == memberId);
-  //     Get.snackbar(
-  //       "Deleted",
-  //       "Member removed successfully",
-  //       backgroundColor: Colors.green,
-  //     );
-  //   } else {
-  //     Get.snackbar(
-  //       "Error",
-  //       "Failed to delete member",
-  //       backgroundColor: Colors.red,
-  //     );
-  //   }
-  // }
+  Future<void> deleteMember(int memberId) async {
+    final token = await UserPreference.getToken() ?? '';
+    log("$token");
+    final response = await ApiService.deleteMember(targetMemberId: memberId);
+    if (response.statusCode == 200) {
+      members.removeWhere((m) => m.id == memberId);
+      Get.snackbar(
+        "Deleted",
+        "Member removed successfully",
+        backgroundColor: Colors.green,
+      );
+      fetchMembers();
+    } else {
+      Get.snackbar(
+        "Error",
+        "Failed to delete member",
+        backgroundColor: Colors.red,
+      );
+    }
+  }
 }

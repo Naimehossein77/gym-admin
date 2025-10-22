@@ -17,7 +17,7 @@ class ApiService {
   }
 
   /// 🔹 Admin Login API Call
-  static const String baseUrl = "http://192.168.10.29:9000/api/";
+  static const String baseUrl = "http://192.168.10.29:8000/api/";
 
   static Future<List<MemberModel>> getMembers() async {
     try {
@@ -163,20 +163,16 @@ class ApiService {
 
   static Future<http.Response> deleteMember({
     required int targetMemberId,
-    required String token,
-    required int memberIdInBody,
   }) async {
-    final url = Uri.parse('${ApiConstants.deleteNember}$targetMemberId');
-
-    final headers = {
-      'Content-Type': 'text/plain',
-      'Authorization': 'Bearer $token',
-    };
-
-    final body = jsonEncode({'token': token, 'member_id': memberIdInBody});
+    final url = Uri.parse('${ApiConstants.deleteNember}/$targetMemberId');
+    final body = jsonEncode({'member_id': targetMemberId});
 
     try {
-      final response = await http.delete(url, headers: headers, body: body);
+      final response = await http.delete(
+        url, 
+        headers: await _getAuthHeaders(),
+        body: body
+      );
       log('🗑️ Delete response: ${response.statusCode}');
       log('📦 Response body: ${response.body}');
       return response;
@@ -185,4 +181,5 @@ class ApiService {
       throw Exception('Failed to delete member');
     }
   }
+  
 }

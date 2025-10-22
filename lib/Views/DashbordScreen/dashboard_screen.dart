@@ -23,7 +23,7 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                 SizedBox(height: 100.h),
                 Align(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    padding: EdgeInsets.symmetric(horizontal: 0.w),
                     child: Column(
                       children: [
                         Row(
@@ -53,9 +53,9 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                             children: [
                               SingleChildScrollView(
                                 // scrollDirection: Axis.vertical,
-                                    scrollDirection: Axis.horizontal,
+                                scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.all(16),
-                            
+
                                 child: Card(
                                   elevation: 4,
                                   shape: RoundedRectangleBorder(
@@ -230,9 +230,9 @@ class DashboardScreen extends GetView<DashboardScreenController> {
                                                           Colors.white,
                                                       onConfirm: () {
                                                         Get.back();
-                                                        // controller.deleteMember(
-                                                        //   member.id,
-                                                        // );
+                                                        controller.deleteMember(
+                                                          member.id,
+                                                        );
                                                       },
                                                     );
                                                   },
