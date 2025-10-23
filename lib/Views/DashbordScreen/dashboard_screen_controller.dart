@@ -11,6 +11,51 @@ import 'package:gym_admin/Utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreenController extends GetxController {
+var searchController =TextEditingController();
+  var isLoading = false.obs;
+  var members = <MemberModel>[].obs; 
+  var paginatedMembers = <MemberModel>[].obs;
+  var currentPage = 0.obs;
+  final int pageSize = 10; 
+  var selectedMember = Rx<MemberModel?>(null);
+
+ 
+
+  void updatePaginatedMembers() {
+    int startIndex = currentPage.value * pageSize;
+    int endIndex = (startIndex + pageSize > members.length)
+        ? members.length
+        : startIndex + pageSize;
+    if (startIndex < members.length) {
+      paginatedMembers.value = members.sublist(startIndex, endIndex);
+    } else {
+      paginatedMembers.clear();
+    }
+  }
+
+  void nextPage() {
+    if ((currentPage.value + 1) * pageSize < members.length) {
+      currentPage.value++;
+      updatePaginatedMembers();
+    }
+  }
+
+  void previousPage() {
+    if (currentPage.value > 0) {
+      currentPage.value--;
+      updatePaginatedMembers();
+    }
+  }
+
+
+void credendentials() {
+  Get.snackbar("Action", "Add Credential action triggered.");
+}
+
+void tokenGenarate() {
+  Get.snackbar("Action", "Token Generate action triggered.");
+}
+
   TextEditingController textController = TextEditingController();
   String selectedCountryCode = '+880';
   final nameController = TextEditingController();
@@ -23,10 +68,10 @@ class DashboardScreenController extends GetxController {
   var selectedPlan = 'Basic'.obs;
   final userNameController = TextEditingController();
 
-  // List of options
+ 
   final List<String> plans = ['Premium', 'Basic', 'Others'];
 
-  var isLoading = false.obs;
+ 
   var responseMessage = ''.obs;
   final formKey = GlobalKey<FormState>();
   @override
@@ -41,11 +86,7 @@ class DashboardScreenController extends GetxController {
     super.onClose();
   }
 
-  var members = <MemberModel>[].obs;
-  var selectedMember = Rxn<MemberModel>();
-
-  var currentPage = 0.obs;
-  final int pageSize = 20;
+  
 
   Future<void> fetchMembers() async {
     isLoading.value = true;
@@ -59,25 +100,7 @@ class DashboardScreenController extends GetxController {
     }
   }
 
-  List<MemberModel> get paginatedMembers {
-    final start = currentPage.value * pageSize;
-    final end = start + pageSize;
-    return members.sublist(start, end > members.length ? members.length : end);
-  }
 
-  void nextPage() {
-    if ((currentPage.value + 1) * pageSize < members.length) {
-      currentPage.value++;
-    }
-  }
-
-  void previousPage() {
-    if (currentPage.value > 0) {
-      currentPage.value--;
-    }
-  }
-
-  // Member Add Function
   Future<void> addMember() async {
     isLoading.value = true;
 
@@ -119,7 +142,7 @@ class DashboardScreenController extends GetxController {
     try {
       isUpdatingCredentials.value = true;
 
-      final memberId = selectedMember.value?.id; // ✅ Member select করা দরকার
+      final memberId = selectedMember.value?.id; 
       if (memberId == null) {
         Get.snackbar(
           "❌ Error",
