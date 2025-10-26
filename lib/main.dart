@@ -6,7 +6,6 @@ import 'package:gym_admin/Utils/routes.dart';
 import 'package:gym_admin/Views/AdminLoginScreen/login_screen.dart';
 import 'package:gym_admin/Views/AdminLoginScreen/login_screen_binding.dart';
 import 'package:gym_admin/Views/DashbordScreen/dashboard.dart';
-import 'package:gym_admin/Views/DashbordScreen/dashboard_screen.dart';
 import 'package:gym_admin/Views/DashbordScreen/dashboard_screen_binding.dart';
 
 

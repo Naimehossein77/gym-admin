@@ -11,21 +11,20 @@ import 'package:gym_admin/Utils/routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreenController extends GetxController {
-var searchController =TextEditingController();
+  var searchController = TextEditingController();
   var isLoading = false.obs;
-  var members = <MemberModel>[].obs; 
+  var members = <MemberModel>[].obs;
   var paginatedMembers = <MemberModel>[].obs;
   var currentPage = 0.obs;
-  final int pageSize = 10; 
+  final int pageSize = 10;
   var selectedMember = Rx<MemberModel?>(null);
-
- 
 
   void updatePaginatedMembers() {
     int startIndex = currentPage.value * pageSize;
-    int endIndex = (startIndex + pageSize > members.length)
-        ? members.length
-        : startIndex + pageSize;
+    int endIndex =
+        (startIndex + pageSize > members.length)
+            ? members.length
+            : startIndex + pageSize;
     if (startIndex < members.length) {
       paginatedMembers.value = members.sublist(startIndex, endIndex);
     } else {
@@ -47,14 +46,13 @@ var searchController =TextEditingController();
     }
   }
 
+  void credendentials() {
+    Get.snackbar("Action", "Add Credential action triggered.");
+  }
 
-void credendentials() {
-  Get.snackbar("Action", "Add Credential action triggered.");
-}
-
-void tokenGenarate() {
-  Get.snackbar("Action", "Token Generate action triggered.");
-}
+  void tokenGenarate() {
+    Get.snackbar("Action", "Token Generate action triggered.");
+  }
 
   TextEditingController textController = TextEditingController();
   String selectedCountryCode = '+880';
@@ -62,16 +60,17 @@ void tokenGenarate() {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
+  final userNameController = TextEditingController();
+
   final expearDaysController = TextEditingController();
   RxString membershipType = 'Premium'.obs;
   TextEditingController countryController = TextEditingController();
   var selectedPlan = 'Basic'.obs;
-  final userNameController = TextEditingController();
+  final DaysController = TextEditingController();
+  final tokenController = TextEditingController();
 
- 
   final List<String> plans = ['Premium', 'Basic', 'Others'];
 
- 
   var responseMessage = ''.obs;
   final formKey = GlobalKey<FormState>();
   @override
@@ -79,6 +78,7 @@ void tokenGenarate() {
     // TODO: implement onInit
     super.onInit();
     fetchMembers();
+    getToken(memberId: 5);
   }
 
   @override
@@ -86,7 +86,27 @@ void tokenGenarate() {
     super.onClose();
   }
 
-  
+  var token = ''.obs;
+
+  Future<void> getToken({required int memberId}) async {
+    try {
+      isLoading(true);
+      final result = await ApiService.tokenGet(memberId);
+
+      if (result != null && result['token'] != null) {
+        token.value = result['token'];
+        Get.snackbar("✅ Success", "Token fetched successfully!");
+      } else {
+        token.value = '';
+        Get.snackbar("⚠️ Failed", "No token found for this member.");
+      }
+    } catch (e) {
+      token.value = '';
+      Get.snackbar("❌ Error", "Something went wrong: $e");
+    } finally {
+      isLoading(false);
+    }
+  }
 
   Future<void> fetchMembers() async {
     isLoading.value = true;
@@ -99,7 +119,6 @@ void tokenGenarate() {
       isLoading.value = false;
     }
   }
-
 
   Future<void> addMember() async {
     isLoading.value = true;
@@ -142,7 +161,7 @@ void tokenGenarate() {
     try {
       isUpdatingCredentials.value = true;
 
-      final memberId = selectedMember.value?.id; 
+      final memberId = selectedMember.value?.id;
       if (memberId == null) {
         Get.snackbar(
           "❌ Error",
@@ -197,32 +216,80 @@ void tokenGenarate() {
 
   var tokenResponse = {}.obs;
 
-  Future<void> generateToken({
-    required int memberId,
-    required int expiresInDays,
-  }) async {
-    try {
-      isLoading(true);
-      EasyLoading.show(status: "Generating token...");
 
-      final result = await ApiService.generateToken(
-        memberId: memberId,
-        expiresInDays: expiresInDays,
+
+
+
+
+
+
+
+
+
+
+
+Future<void> generateTokenFromModel({
+  required member,  
+  required String expiresInDays,
+}) async {
+  try {
+    isLoading(true);
+    EasyLoading.show(status: "Generating token...");
+    isUpdatingCredentials.value = true;
+
+    log(" Member Info Sending:");
+    log(" ID: ${member.id}");
+    log(" Name: ${member.name}");
+
+   
+    final expires = int.tryParse(expiresInDays);
+    if (expires == null || expires <= 0) {
+      Get.snackbar(
+        " Invalid Input",
+        "Please enter a valid number of days",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
       );
-
-      if (result != null) {
-        tokenResponse.value = result;
-        Get.snackbar("✅ Success", "Token generated successfully!");
-      } else {
-        Get.snackbar("❌ Failed", "Could not generate token.");
-      }
-    } catch (e) {
-      Get.snackbar("⚠️ Error", e.toString());
-    } finally {
-      isLoading(false);
-      if (EasyLoading.isShow) EasyLoading.dismiss();
+      return;
     }
+
+    
+    final result = await ApiService.generateToken(
+      memberId: member.id,       
+      expiresInDays: expires,
+    );
+
+    
+    if (result != null && result['token'] != null) {
+      tokenResponse.value = result;
+      Get.snackbar(
+        " Success",
+        "Token generated successfully for ${member.name}!",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.snackbar(
+        "❌ Failed",
+        "Could not generate token for ${member.name}.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  } catch (e) {
+    Get.snackbar(
+      " Error",
+      e.toString(),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isLoading(false);
+    if (EasyLoading.isShow) EasyLoading.dismiss();
+    isUpdatingCredentials.value = false;
   }
+}
+
 
   Future<void> deleteMember(int memberId) async {
     final token = await UserPreference.getToken() ?? '';

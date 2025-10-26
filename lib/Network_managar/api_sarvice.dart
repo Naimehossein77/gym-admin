@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:gym_admin/Model/member_model.dart';
 import 'package:gym_admin/Network_managar/api_constants.dart';
 import 'package:gym_admin/Network_managar/user_preference.dart';
@@ -15,6 +17,48 @@ class ApiService {
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
   }
+
+
+
+
+
+
+  static Future<Map<String, dynamic>?> tokenGet(int memberId) async {
+    try {
+      final token = (await UserPreference.getToken())?.trim();
+      final url = Uri.parse("${ApiConstants.tokenGet}/$memberId"); 
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body); // ✅ decode JSON
+        return data;
+      } else {
+        print("❌ Token Get failed: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("⚠️ Exception in tokenGet: $e");
+      return null;
+    }
+  }
+
+
+//  static Future<http.Response> tokenGet(int memberId) async {
+//     final url = Uri.parse('${ApiConstants.tokenGet}/$memberId');
+//     final headers = await _getAuthHeaders();
+//     return await http.get(url, headers: headers);
+//   }
+
+
+
+
 
   /// 🔹 Admin Login API Call
   static const String baseUrl = "http://192.168.10.29:8000/api/";
@@ -125,41 +169,43 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> generateToken({
-    required int memberId,
-    required int expiresInDays,
-  }) async {
-    final token = (await UserPreference.getToken())?.trim();
-    final url = Uri.parse('${ApiConstants.tokenGenarate}');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': token, // উদাহরণ: Bearer token
-    };
 
-    final body = jsonEncode({
-      'member_id': memberId,
-      'expires_in_days': expiresInDays,
-    });
 
-    try {
-      final response = await http.post(
-        url,
-        headers: await _getAuthHeaders(),
-        body: body,
-      );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else {
-        print("❌ Token generation failed: ${response.statusCode}");
-        print("Response: ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      print("⚠️ Exception while generating token: $e");
-      return null;
-    }
+static Future<Map<String, dynamic>?> generateToken({
+  required int memberId,
+  required int expiresInDays,
+}) async {
+  final token = (await UserPreference.getToken())?.trim();
+  final url = Uri.parse("${ApiConstants.tokenGenarate}"); 
+
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  };
+
+  final body = jsonEncode({
+    'member_id': memberId,
+    'expires_in_days': expiresInDays,
+  });
+
+  print("📤 Sending body: $body");
+
+  final response = await http.post(url, headers: headers, body: body);
+
+  print(" Response code: ${response.statusCode}");
+  print(" Response body: ${response.body}");
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    Get.snackbar("❌ Token Get failed", "${response.statusCode}");
+    print("❌ Token Get failed: ${response.statusCode}");
+    print("Response body: ${response.body}");
+    return null;
   }
+}
+
 
   static Future<http.Response> deleteMember({
     required int targetMemberId,

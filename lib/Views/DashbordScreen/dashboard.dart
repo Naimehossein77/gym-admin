@@ -34,6 +34,8 @@ class MemberListView extends StatelessWidget {
         'Token Generate',
         'User Name',
         'View Token',
+        "Create",
+        "Update",
       ];
 
       return Column(
@@ -216,7 +218,7 @@ class MemberListView extends StatelessWidget {
                             alignment: Alignment.center,
                             child: InkWell(
                               onTap: () {
-                                controller.tokenGenarate();
+                                tokenGenarateDylog(memberId: member.id);
                               },
                               child: Container(
                                 height: 25.h,
@@ -301,6 +303,8 @@ class MemberListView extends StatelessWidget {
           alignment: const Alignment(0, -0.5),
           child: Container(
             width: Get.width * 0.50,
+            height: Get.height * 0.70,
+
             margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
             decoration: BoxDecoration(
@@ -310,7 +314,7 @@ class MemberListView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
                 Text(
                   "ADD MEMBER",
                   style: TextStyle(
@@ -323,7 +327,7 @@ class MemberListView extends StatelessWidget {
                 ),
 
                 SizedBox(
-                  width: 70.w,
+                  width: 90.w,
                   child: customTextField(
                     context,
                     label: "Name",
@@ -331,10 +335,10 @@ class MemberListView extends StatelessWidget {
                     controller: controller.nameController,
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
 
                 SizedBox(
-                  width: 70.w,
+                  width: 90.w,
                   child: customTextField(
                     context,
                     label: "Email",
@@ -342,7 +346,7 @@ class MemberListView extends StatelessWidget {
                     controller: controller.emailController,
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
                 // Text("Phone number"),
                 GestureDetector(
                   onTap: () {
@@ -385,9 +389,9 @@ class MemberListView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 10.h),
                       SizedBox(
-                        width: 60.w,
+                        width: 66.w,
                         child: customTextField(
                           context,
                           label: "",
@@ -398,11 +402,11 @@ class MemberListView extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 25.h),
                 Container(
-                  width: 80.w,
+                  width: 90.w,
                   padding: EdgeInsets.symmetric(
-                    vertical: 7.h,
+                    vertical: 3.h,
                     // horizontal: 10.w,
                   ),
                   decoration: BoxDecoration(
@@ -431,7 +435,7 @@ class MemberListView extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 10.h),
+                SizedBox(height: 25.h),
                 GestureDetector(
                   onTap: () async {
                     await controller.addMember();
@@ -443,18 +447,22 @@ class MemberListView extends StatelessWidget {
                       );
                     }
                   },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 110.w),
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Colors.blueAccent,
-                            Color.fromARGB(255, 127, 191, 228),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    // height: 30.h,
+                    width: 90.w,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.blueAccent,
+                          Color.fromARGB(255, 127, 191, 228),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 20.w,
                       ),
                       child: Center(
                         child: Text(
@@ -559,9 +567,10 @@ class MemberListView extends StatelessWidget {
           alignment: const Alignment(0, -0.5),
           child: Container(
             width: Get.width * 0.50,
+            height: Get.height * 0.50,
 
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(14.r),
@@ -569,7 +578,7 @@ class MemberListView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
                 Text(
                   "ADD CREDENTIAL",
                   style: TextStyle(
@@ -582,7 +591,7 @@ class MemberListView extends StatelessWidget {
                 ),
 
                 SizedBox(
-                  width: 80.w,
+                  width: 90.w,
                   child: customTextField(
                     context,
                     label: "userName",
@@ -590,10 +599,10 @@ class MemberListView extends StatelessWidget {
                     controller: controller.userNameController,
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
 
                 SizedBox(
-                  width: 80.w,
+                  width: 90.w,
                   child: customTextField(
                     context,
                     label: "Password",
@@ -602,7 +611,7 @@ class MemberListView extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: 10.h),
+                SizedBox(height: 20.h),
                 GestureDetector(
                   onTap: () async {
                     // controller.selectedMember.value = member;
@@ -612,19 +621,19 @@ class MemberListView extends StatelessWidget {
                       password: "limon123",
                     );
                   },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 110.w),
-                    child: Container(
-                      height: 40.h,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Colors.blueAccent,
-                            Color.fromARGB(255, 127, 191, 228),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    width: 88.w,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.blueAccent,
+                          Color.fromARGB(255, 127, 191, 228),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 9.h),
                       child: Center(
                         child: Text(
                           "set password",
@@ -637,7 +646,109 @@ class MemberListView extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 10.h),
+                SizedBox(height: 2.h),
+              ],
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final offsetAnimation = Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).animate(animation);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    );
+  }
+
+  void tokenGenarateDylog({required int memberId}) {
+    Get.generalDialog(
+      barrierDismissible: true,
+      barrierLabel: "Duplicate Login",
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Align(
+          alignment: const Alignment(0, -0.5),
+          child: Container(
+            width: Get.width * 0.50,
+            height: Get.height * 0.50,
+
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.r),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 2.h),
+                Text(
+                  "Token Genarate",
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    fontSize: 6.sp,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xff000000),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                // SizedBox(
+                //   width: 90.w,
+                //   child: customTextField(
+                //     context,
+                //     label: "token",
+                //     hintText: "token genarate",
+                //     controller: controller.tokenController,
+                //   ),
+                // ),
+                SizedBox(height: 2.h),
+
+                SizedBox(
+                  width: 90.w,
+                  child: customTextField(
+                    context,
+                    label: "Days",
+                    hintText: "days",
+                    controller: controller.DaysController,
+                  ),
+                ),
+
+                SizedBox(height: 25.h),
+                GestureDetector(
+                  onTap: () {
+                  controller.generateTokenFromModel(member:memberId , expiresInDays:controller.expearDaysController.text );
+                   
+                  },
+                  child: Container(
+                    width: 90.w,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.blueAccent,
+                          Color.fromARGB(255, 127, 191, 228),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      child: Center(
+                        child: Text(
+                          "token genarate",
+                          style: TextStyle(
+                            fontSize: 3.5.sp,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 2.h),
               ],
             ),
           ),

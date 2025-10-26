@@ -7,4 +7,6 @@ class ApiConstants {
   static const String deleteNember = "http://192.168.10.29:8000/api/members";
   static const String setPassword = '${baseUrl}/members/';
   static const String tokenGenarate = '${baseUrl}/tokens/generate';
+  static const String tokenGet = '${baseUrl}/tokens/member';
+
 }
