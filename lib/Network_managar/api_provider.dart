@@ -15,11 +15,7 @@ class ApiProvider {
       if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
     };
   }
- static Future<http.Response> authGet({required String endpoint}) async {
-    final url = Uri.parse(ApiConstants.baseUrl + endpoint);
-    final headers = await _getAuthHeaders();
-    return await http.get(url, headers: headers);
-  }
+
   static Future<http.Response> post({
     required String endpoint,
     required Map<String, dynamic> body,
@@ -42,7 +38,11 @@ class ApiProvider {
     return await http.post(url, headers: headers, body: jsonEncode(body));
   }
 
- 
+  static Future<http.Response> authGet({required String endpoint}) async {
+    final url = Uri.parse(ApiConstants.baseUrl + endpoint);
+    final headers = await _getAuthHeaders();
+    return await http.get(url, headers: headers);
+  }
 
   static Future<http.Response> authDelete({required String endpoint}) async {
     final url = Uri.parse(ApiConstants.baseUrl + endpoint);

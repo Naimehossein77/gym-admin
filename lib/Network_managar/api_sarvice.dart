@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/route_manager.dart';
-import 'package:gym_admin/Model/member_model.dart';
-import 'package:gym_admin/Network_managar/api_constants.dart';
+import 'package:gym_admin/Models/member_model.dart';
+import 'package:gym_admin/Models/member_with_token.dart';
+import 'package:gym_admin/Models/members_token.dart';
+import 'package:gym_admin/Models/token_expair_model.dart';
 import 'package:gym_admin/Network_managar/user_preference.dart';
-
+import 'package:gym_admin/Utils/basic.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -18,73 +18,9 @@ class ApiService {
     };
   }
 
-
-
-
-
-
-  static Future<Map<String, dynamic>?> tokenGet(int memberId) async {
-    try {
-      final token = (await UserPreference.getToken())?.trim();
-      final url = Uri.parse("${ApiConstants.tokenGet}/$memberId"); 
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-
-      final response = await http.get(url, headers: headers);
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body); // ✅ decode JSON
-        return data;
-      } else {
-        print("❌ Token Get failed: ${response.statusCode}");
-        print("Response body: ${response.body}");
-        return null;
-      }
-    } catch (e) {
-      print("⚠️ Exception in tokenGet: $e");
-      return null;
-    }
-  }
-
-
-//  static Future<http.Response> tokenGet(int memberId) async {
-//     final url = Uri.parse('${ApiConstants.tokenGet}/$memberId');
-//     final headers = await _getAuthHeaders();
-//     return await http.get(url, headers: headers);
-//   }
-
-
-
-
-
-  /// 🔹 Admin Login API Call
   static const String baseUrl = "http://192.168.10.29:8000/api/";
 
-  static Future<List<MemberModel>> getMembers() async {
-    try {
-      final url = Uri.parse(
-        '${ApiConstants.baseUrl}${ApiConstants.getMembers}',
-      );
-      final headers = await _getAuthHeaders();
-
-      final response = await http.get(url, headers: headers);
-      log('📥 Members response: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => MemberModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load members: ${response.statusCode}');
-      }
-    } catch (e) {
-      log('❌ Member fetch error: $e');
-      throw Exception('Member fetch failed: $e');
-    }
-  }
-
+  
   static Future<http.Response> adminLogin({
     required String username,
     required String password,
@@ -98,7 +34,6 @@ class ApiService {
       };
 
       final body = {"username": username.trim(), "password": password.trim()};
-
       final response = await http.post(url, headers: headers, body: body);
       if (response.statusCode != 200) {
         throw Exception('Login failed: ${response.statusCode}');
@@ -110,122 +45,331 @@ class ApiService {
     }
   }
 
-  static Future<http.Response> memberAdd({
-    required String name,
-    required String email,
-    required String phone,
-    required String membershipType,
-    required String token, // যদি Authorization লাগে
-  }) async {
-    final url = Uri.parse('${baseUrl}members');
-
-    // Body
-    final body = jsonEncode({
-      "name": name,
-      "email": email,
-      "phone": phone,
-      "membership_type": membershipType,
-    });
-
-    // Headers
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // token optional, যদি API secure
-    };
-
-    // POST request
-    final response = await http.post(url, body: body, headers: headers);
-
-    return response;
-  }
-
-  static Future<http.Response> setMemberCredentials({
-    required int memberId,
-    required String username,
-    required String password,
-    required String token,
-  }) async {
-    final url = Uri.parse(
-      '${ApiConstants.setPassword}$memberId/credentials',
-    ); // Example: /api/member/set-password/1
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-
-    final body = jsonEncode({'username': username, 'password': password});
+  /// ✅ Add Member (POST /api/members)
+  static Future<Member> addMember(MemberCreateRequest payload) async {
+    final url = Uri.parse("${baseUrl}members");
+    final headers = await _getAuthHeaders();
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final resp = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(payload.toJson()),
+      );
 
-      log('🔐 Set credentials response: ${response.statusCode}');
-      log('📦 Body: ${response.body}');
+      log('🔵 addMember status: ${resp.statusCode}');
+      log('🟢 addMember body: ${resp.body}');
 
-      return response;
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final data = jsonDecode(resp.body) as Map<String, dynamic>;
+        return Member.fromJson(data);
+      }
+      String message = 'Add member failed (${resp.statusCode})';
+      try {
+        final err = jsonDecode(resp.body);
+        if (err is Map && err['message'] != null) {
+          message = err['message'].toString();
+        }
+      } catch (_) {}
+      throw Exception(message);
     } catch (e) {
-      log('❌ Error setting credentials: $e');
-      throw Exception('Failed to set member credentials');
+      log('❌ addMember error: $e');
+      rethrow;
     }
   }
 
+  /// ✅ GET /api/members  → Fetch all members
+  static Future<List<Member>> getMembers() async {
+    final headers = await _getAuthHeaders();
+    final uri = Uri.parse("${baseUrl}members");
 
+    try {
+      final resp = await http.get(uri, headers: headers);
+      log('🔵 getMembers status: ${resp.statusCode}');
+      log('🟢 getMembers body: ${resp.body}');
 
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
 
-static Future<Map<String, dynamic>?> generateToken({
-  required int memberId,
-  required int expiresInDays,
-}) async {
-  final token = (await UserPreference.getToken())?.trim();
-  final url = Uri.parse("${ApiConstants.tokenGenarate}"); 
+        if (decoded is List) {
+          // API returns: [ {...}, {...} ]
+          return decoded.map<Member>((e) => Member.fromJson(e)).toList();
+        } else if (decoded is Map && decoded['items'] is List) {
+          // API returns: { items: [ {...}, {...} ] }
+          return (decoded['items'] as List)
+              .map<Member>((e) => Member.fromJson(e))
+              .toList();
+        } else {
+          throw Exception('Unexpected response format');
+        }
+      }
 
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
+      // Handle server error message
+      String message = 'Fetch members failed (${resp.statusCode})';
+      try {
+        final err = jsonDecode(resp.body);
+        if (err is Map && err['message'] != null) {
+          message = err['message'].toString();
+        }
+      } catch (_) {}
+      throw Exception(message);
+    } catch (e) {
+      log('❌ getMembers error: $e');
+      rethrow;
+    }
+  }
 
-  final body = jsonEncode({
-    'member_id': memberId,
-    'expires_in_days': expiresInDays,
-  });
+  /// ✅ Set/Update a member's credentials
+  /// POST /api/members/{memberId}/credentials
+  static Future<BasicResponse> setMemberCredentials({
+    required int memberId,
+    required String username,
+    required String password,
+  }) async {
+    final headers = await _getAuthHeaders();
+    final url = Uri.parse("${baseUrl}members/$memberId/credentials");
 
-  print("📤 Sending body: $body");
+    final body = jsonEncode({
+      "username": username.trim(),
+      "password": password.trim(),
+    });
 
-  final response = await http.post(url, headers: headers, body: body);
+    try {
+      final resp = await http.post(url, headers: headers, body: body);
+      log('🔵 setMemberCredentials status: ${resp.statusCode}');
+      log('🟢 setMemberCredentials body: ${resp.body}');
 
-  print(" Response code: ${response.statusCode}");
-  print(" Response body: ${response.body}");
+      // সাধারণত 200 OK
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        if (decoded is Map<String, dynamic>) {
+          return BasicResponse.fromJson(decoded);
+        }
+        // fallback
+        return BasicResponse(success: true, message: 'Credentials set.');
+      }
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    Get.snackbar("❌ Token Get failed", "${response.statusCode}");
-    print("❌ Token Get failed: ${response.statusCode}");
-    print("Response body: ${response.body}");
-    return null;
+      // সার্ভারের error মেসেজ দেখানোর চেষ্টা
+      String message = 'Set credentials failed (${resp.statusCode})';
+      try {
+        final err = jsonDecode(resp.body);
+        if (err is Map && err['message'] != null) {
+          message = err['message'].toString();
+        }
+      } catch (_) {}
+      throw Exception(message);
+    } catch (e) {
+      log('❌ setMemberCredentials error: $e');
+      rethrow;
+    }
+  }
+
+  /// ✅ Generate NFC/Access token for a member
+  /// POST /api/tokens/generate
+  static Future<MemberTokenResponse> generateMemberToken({
+    required int memberId,
+    int expiresInDays = 30,
+  }) async {
+    final headers = await _getAuthHeaders();
+    final url = Uri.parse("${baseUrl}tokens/generate");
+
+    final body = jsonEncode({
+      "member_id": memberId,
+      "expires_in_days": expiresInDays,
+    });
+
+    try {
+      final resp = await http.post(url, headers: headers, body: body);
+      log('🔵 generateMemberToken status: ${resp.statusCode}');
+      log('🟢 generateMemberToken body: ${resp.body}');
+
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        if (decoded is Map<String, dynamic>) {
+          return MemberTokenResponse.fromJson(decoded);
+        }
+        throw Exception('Unexpected response format');
+      }
+
+      // server error message forward
+      String message = 'Generate token failed (${resp.statusCode})';
+      try {
+        final err = jsonDecode(resp.body);
+        if (err is Map && err['message'] != null) {
+          message = err['message'].toString();
+        }
+      } catch (_) {}
+      throw Exception(message);
+    } catch (e) {
+      log('❌ generateMemberToken error: $e');
+      rethrow;
+    }
+  }
+
+  /// ✅ Delete Member API
+  /// DELETE /api/members/{memberId}
+/// ✅ Delete Member API
+/// DELETE /api/members/{memberId}
+static Future<BasicResponse> deleteMember(int memberId) async {
+  final headers = await _getAuthHeaders();
+  final url = Uri.parse("${baseUrl}members/$memberId");
+
+  try {
+    final resp = await http.delete(url, headers: headers);
+    log('🔵 deleteMember status: ${resp.statusCode}');
+    log('🟢 deleteMember body: ${resp.body}');
+
+    if (resp.statusCode == 200) {
+      final decoded = jsonDecode(resp.body);
+      if (decoded is Map<String, dynamic>) {
+        return BasicResponse.fromJson(decoded);
+      } else {
+        throw Exception('Unexpected response format');
+      }
+    }
+
+    // Error handler
+    String message = 'Delete failed (${resp.statusCode})';
+    try {
+      final err = jsonDecode(resp.body);
+      if (err is Map && err['message'] != null) {
+        message = err['message'].toString();
+      }
+    } catch (_) {}
+    throw Exception(message);
+  } catch (e) {
+    log('❌ deleteMember error: $e');
+    rethrow;
   }
 }
 
 
-  static Future<http.Response> deleteMember({
-    required int targetMemberId,
+  /// ✅ Update Member
+  /// PUT /api/members/{memberId}
+  static Future<Member> updateMember(
+    int memberId, {
+    String? name,
+    String? email,
+    String? phone,
+    String? membershipType,
+    String? status,
   }) async {
-    final url = Uri.parse('${ApiConstants.deleteNember}/$targetMemberId');
-    final body = jsonEncode({'member_id': targetMemberId});
+    final headers = await _getAuthHeaders();
+    final url = Uri.parse("${baseUrl}members/$memberId");
+
+    // কেবল যেগুলো non-null, সেগুলোই পাঠাই
+    final Map<String, dynamic> payload = {};
+    if (name != null) payload["name"] = name.trim();
+    if (email != null) payload["email"] = email.trim();
+    if (phone != null) payload["phone"] = phone.trim();
+    if (membershipType != null)
+      payload["membership_type"] = membershipType.trim();
+    if (status != null) payload["status"] = status.trim();
+
+    if (payload.isEmpty) {
+      throw Exception("Nothing to update. Provide at least one field.");
+    }
 
     try {
-      final response = await http.delete(
-        url, 
-        headers: await _getAuthHeaders(),
-        body: body
+      final resp = await http.put(
+        url,
+        headers: headers,
+        body: jsonEncode(payload),
       );
-      log('🗑️ Delete response: ${response.statusCode}');
-      log('📦 Response body: ${response.body}');
-      return response;
+
+      log('🔵 updateMember status: ${resp.statusCode}');
+      log('🟢 updateMember body: ${resp.body}');
+
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        if (decoded is Map<String, dynamic>) {
+          return Member.fromJson(decoded);
+        }
+        throw Exception('Unexpected response format');
+      }
+
+      // সার্ভারের error বার্তা forward
+      String message = 'Update failed (${resp.statusCode})';
+      try {
+        final err = jsonDecode(resp.body);
+        if (err is Map && err['message'] != null) {
+          message = err['message'].toString();
+        }
+      } catch (_) {}
+      throw Exception(message);
     } catch (e) {
-      log('❌ Delete error: $e');
-      throw Exception('Failed to delete member');
+      log('❌ updateMember error: $e');
+      rethrow;
     }
   }
-  
+
+  // GET /api/members/admin/members-with-tokens
+static Future<List<MemberWithToken>> getMembersWithTokens() async {
+  final headers = await _getAuthHeaders();
+  final url = Uri.parse("${baseUrl}members/admin/members-with-tokens");
+
+  try {
+    final resp = await http.get(url, headers: headers);
+    log('🔵 getMembersWithTokens status: ${resp.statusCode}');
+    log('🟢 getMembersWithTokens body: ${resp.body}');
+
+    if (resp.statusCode == 200) {
+      final decoded = jsonDecode(resp.body);
+
+      if (decoded is List) {
+        return decoded
+            .map<MemberWithToken>((e) => MemberWithToken.fromJson(e))
+            .toList();
+      }
+      throw Exception('Unexpected response format');
+    }
+
+    // সার্ভারের error মেসেজ ফরওয়ার্ড করার চেষ্টা
+    String message = 'Fetch members-with-tokens failed (${resp.statusCode})';
+    try {
+      final err = jsonDecode(resp.body);
+      if (err is Map && err['message'] != null) {
+        message = err['message'].toString();
+      }
+    } catch (_) {}
+    throw Exception(message);
+  } catch (e) {
+    log('❌ getMembersWithTokens error: $e');
+    rethrow;
+  }
+}
+
+/// ✅ Cleanup expired tokens
+/// POST /api/tokens/cleanup
+static Future<TokenCleanupResponse> cleanupExpiredTokens() async {
+  final headers = await _getAuthHeaders();
+  final url = Uri.parse("${baseUrl}tokens/cleanup");
+
+  try {
+    final resp = await http.post(url, headers: headers, body: jsonEncode({}));
+    log('🔵 cleanupExpiredTokens status: ${resp.statusCode}');
+    log('🟢 cleanupExpiredTokens body: ${resp.body}');
+
+    if (resp.statusCode == 200) {
+      final decoded = jsonDecode(resp.body);
+      if (decoded is Map<String, dynamic>) {
+        return TokenCleanupResponse.fromJson(decoded);
+      }
+      throw Exception('Unexpected response format');
+    }
+
+    // forward server message if any
+    String message = 'Cleanup failed (${resp.statusCode})';
+    try {
+      final err = jsonDecode(resp.body);
+      if (err is Map && err['message'] != null) {
+        message = err['message'].toString();
+      }
+    } catch (_) {}
+    throw Exception(message);
+  } catch (e) {
+    log('❌ cleanupExpiredTokens error: $e');
+    rethrow;
+  }
+}
 }

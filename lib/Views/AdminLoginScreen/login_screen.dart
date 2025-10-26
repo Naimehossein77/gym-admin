@@ -9,6 +9,18 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 230, 227, 227),
+        title: Text(
+          "Gym Admin Panel",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 5.sp,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Align(
         child: Form(
           key: controller.formKey,
@@ -18,7 +30,7 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
             children: [
               Container(
                 height: 500,
-                width: 500,
+                width: 600,
 
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.5),
@@ -37,16 +49,17 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
                   child: Column(
                     children: [
-                      SizedBox(height: 60.h),
+                      SizedBox(height: 40.h),
                       Text(
-                        "Admin Login",
+                        "Login",
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 8.sp,
+                          fontSize: 6.sp,
                           fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                      SizedBox(height: 50.h),
+                      SizedBox(height: 30.h),
 
                       customTextField(
                         context,
@@ -89,31 +102,24 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
                         ),
                       ),
                       SizedBox(height: 30.h),
-
-                      // 🔘 Continue Button
                       GestureDetector(
-                      
                         onTap: () {
                           controller.adminUserLogin();
                           // Get.toNamed(Routes.dashbordScreen);
                         },
                         child: Container(
-                          height: 40,
+                          height: 50,
+                          width: 450,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Colors.blueAccent,
-                                Color.fromARGB(255, 127, 191, 228),
-                              ],
-                            ),
+                            color: Colors.black,
                             borderRadius: BorderRadius.circular(10.r),
                           ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 40.sp),
-                            child: Align(
-                              child: Text(
-                                "Continue",
-                                style: TextStyle(fontSize: 3.5.sp),
+                          child: Center(
+                            child: Text(
+                              "Continue",
+                              style: TextStyle(
+                                fontSize: 3.sp,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -146,8 +152,8 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: 3.sp,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
           ),
@@ -159,6 +165,7 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
           validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
+            hintStyle: TextStyle(color: Colors.grey, fontSize: 3.sp),
             prefixIcon:
                 prefixIcon != null
                     ? Icon(prefixIcon, color: Colors.grey[700])
@@ -182,7 +189,7 @@ class AdminLoginScreen extends GetView<AdminLoginScreenController> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+              borderSide: const BorderSide(color: Colors.black, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
