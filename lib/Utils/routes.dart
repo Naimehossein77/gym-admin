@@ -1,5 +1,7 @@
 class Routes {
-static const String adminLoginScreen="/AdminLoginScreen";
-static const String dashbordScreen="/DashbordScreen";
+static const String admin="/admin";
+static const String dashboard="/dashboard";
+
+
 
 }

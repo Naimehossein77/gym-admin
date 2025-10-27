@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:gym_admin/AdimnLogin/admin_binding.dart';
+import 'package:gym_admin/AdimnLogin/admin_screen.dart';
+import 'package:gym_admin/Dashboard_Screen/dashboard_binding.dart';
+import 'package:gym_admin/Dashboard_Screen/dashboard_screen.dart';
 import 'package:gym_admin/Utils/routes.dart';
-import 'package:gym_admin/Views/AdminLoginScreen/login_screen.dart';
-import 'package:gym_admin/Views/AdminLoginScreen/login_screen_binding.dart';
-import 'package:gym_admin/Views/DashbordScreen/dashboard_screen.dart';
-import 'package:gym_admin/Views/DashbordScreen/dashboard_screen_binding.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,20 +44,22 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: ThemeData(fontFamily: 'roboto'),
             // home: SplashScreen(),
-            initialRoute: Routes.adminLoginScreen,
+            initialRoute: Routes.admin,
 
             // home: HomePage(),
             getPages: [
               GetPage(
-                name: Routes.adminLoginScreen,
-                page: () => AdminLoginScreen(),
-                binding: AdminLoginScreenBinding(),
+                name: Routes.admin,
+                page: () =>AdminScreen (),
+                binding: AdminBinding(),
               ),
-              GetPage(
-                name: Routes.dashbordScreen,
-                page: () => DashboardScreen(),
-                binding: DashboardScreenBinding(),
+                GetPage(
+                name: Routes.dashboard,
+                page: () =>DashboardScreen (),
+                binding: DashboardBinding(),
               ),
+             
+             
             ],
           ),
         );
