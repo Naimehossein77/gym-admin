@@ -8,8 +8,8 @@ import 'package:gym_admin/Network_managar/api_sarvice.dart';
 
 class DashboardScreenController extends GetxController {
   // Dropdown options
-  final List<int> pageSizes = const [25, 50, 100, 500];
-  final RxInt selectedPageSize = 25.obs;
+  final List<int> pageSizes = const [05, 10, 20, 500];
+  final RxInt selectedPageSize = 05.obs;
   final members = <Member>[].obs;
   final isLoading = false.obs;
   final isCleaning = false.obs;
@@ -699,7 +699,6 @@ class DashboardScreenController extends GetxController {
   Future<void> loadMemberTokens() async {
     try {
       final list = await ApiService.getMembersWithTokens();
-      // member_id -> MemberWithToken ম্যাপ বানাও
       final map = <int, MemberWithToken>{};
       for (final t in list) {
         map[t.memberId] = t;
@@ -717,7 +716,7 @@ class DashboardScreenController extends GetxController {
     }
   }
 
-  Future<void> confirmAndDelete(Member m) async {
+  Future<void> confirmAndDelete(Member m) async{
     final ok = await Get.dialog<bool>(
       AlertDialog(
         backgroundColor: const Color.fromARGB(255, 230, 227, 227),
